@@ -15,6 +15,12 @@ import ru.kata.spring.boot_security.demo.repositorey.UserRepository;
 @Controller
 public class HomeController {
     private UserRepository userRepository;
+    private final UserService userService;
+
+    public HomeController(UserService userService) {
+        this.userService = userService;
+    }
+
 
     @Autowired
     public void setUserRepository(UserRepository userRepository) {
@@ -33,4 +39,5 @@ public class HomeController {
         model.addAttribute("user", user);
         return "indexTU";
     }
+
 }

@@ -1,36 +1,401 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>User List</title>
+    <title>Admin Panel</title>
+    <!-- CSS Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .user-header {
+            background-color: #343a40;
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logout-btn {
+            color: white;
+            background-color: #495057;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .logout-btn:hover {
+            background-color: #6c757d;
+        }
+        .nav-tabs {
+            margin-bottom: 20px;
+        }
+        .nav-link {
+            color: #495057;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        .nav-link.active {
+            font-weight: bold;
+            color: #0d6efd;
+            background-color: transparent;
+            border-bottom: 2px solid #0d6efd;
+        }
+        .action-buttons {
+            white-space: nowrap;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .form-container {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .user-info-container {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .user-info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .user-info-table th {
+            text-align: left;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .user-info-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        /* Стили для модального окна */
+        .modal-header {
+            border-bottom: 1px solid #dee2e6;
+        }
+        .modal-footer {
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
 </head>
+
 <body>
-<h1>User List</h1>
+<!-- Шапка с информацией о пользователе и кнопкой выхода -->
+<div class="user-header">
+    <span th:text="${userTu.username} + ' with roles: ' + ${userTu.roles}">admin@mail.ru with roles: ADMIN USER</span>
+    <a th:href="@{/logout}" class="logout-btn">Logout</a>
+</div>
 
-<table border="1">
-    <tr>
-        <th>id</th>
-        <th>username</th>
-        <th>lastName</th>
-        <th>age</th>
-        <th>password</th>
-        <th>role</th>
-    </tr>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Левое меню -->
+        <div class="col-md-3 col-lg-2">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" id="adminTab" href="#">Admin</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="userTab" href="#">User</a>
+                </li>
+            </ul>
+        </div>
 
-    <tr th:each="user : ${users}">
-        <td th:text="${user.id}"></td>
-        <td th:text="${user.username}"></td>
-        <td th:text="${user.lastName}"></td>
-        <td th:text="${user.age}"></td>
-        <td th:text="${user.password}"></td>
-        <td th:text="${user.getRoles()}"></td>
-        <td>
-              <a th:href="@{/admin/edit(id=${user.id})}">Edit</a>
-              <a th:href="@{/admin/delete(id=${user.id})}">Delete</a>
-              <a th:href="@{/admin/details(id=${user.id})}">Details</a>
-          </td>
-      </tr>
-  </table>
-  <br/>
-  <a href="/admin/new">Add New User</a>
-  </body>
-  </html>
+        <!-- Основное содержимое -->
+        <div class="col-md-9 col-lg-10">
+            <h2 class="mb-4" id="mainTitle">Admin panel</h2>
+
+            <!-- Табы для Users table и New User -->
+            <ul class="nav nav-tabs" id="adminSubTabs">
+                <li class="nav-item">
+                    <a class="nav-link active" id="usersTableTab" href="#">Users table</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="newUserTab" href="#">New User</a>
+                </li>
+            </ul>
+
+            <!-- Секция с таблицей пользователей -->
+            <div id="usersTableSection" class="content-section active">
+                <h5 class="mb-3">All users</h5>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Last Name</th>
+                        <th>Age</th>
+                        <th>Role</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.id}"></td>
+                        <td th:text="${user.username}"></td>
+                        <td th:text="${user.lastName}"></td>
+                        <td th:text="${user.age}"></td>
+                        <td th:text="${user.getRoles()}"></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-outline-warning btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editUserModal"
+                                    th:onclick="|loadUserData(${user.id})|">
+                                Edit
+                            </button>
+                        </td>
+                        <td class="action-buttons">
+                            <button class="btn btn-outline-danger btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteUserModal"
+                                    th:onclick="|loadUserForDelete(${user.id})|">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Секция с формой создания пользователя -->
+            <div id="newUserSection" class="content-section form-container">
+                <h5 class="mb-3">Add new user</h5>
+
+                <form th:action="@{/admin}" th:object="${user}" method="post">
+                    <div class="form-group">
+                        <label for="username">First name</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last name</label>
+                        <input type="text" class="form-control" id="lastName" name="lastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" class="form-control" id="age" name="age" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <div th:each="role : ${allRoles}">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                       th:id="'role_' + ${role.id}"
+                                       th:value="${role.id}"
+                                       name="roles">
+                                <label class="form-check-label" th:for="'role_' + ${role.id}"
+                                       th:text="${role.name}"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mt-4">
+                        <button type="submit" class="btn btn-primary">Create</button>
+                        <button type="button" id="cancelNewUser" class="btn btn-secondary ml-2">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+
+            <!-- Секция с информацией о пользователе -->
+            <div id="userInfoSection" class="content-section user-info-container">
+
+                <h5 class="mb-3">About user</h5>
+
+                <table class="user-info-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Age</th>
+                        <th>Role</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td th:text="${userTu.id}"></td>
+                        <td th:text="${userTu.username}"></td>
+                        <td th:text="${userTu.lastName}"></td>
+                        <td th:text="${userTu.age}"></td>
+                        <td th:text="${userTu.getRoles()}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования пользователя -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit user</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/admin/update}" method="post">
+                <div class="modal-body" id="editUserModalBody">
+                    <!-- Содержимое будет загружено через AJAX -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Edit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения удаления -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteUserModalLabel">Confirm deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/admin/delete}" method="post">
+                <div class="modal-body" id="deleteUserModalBody">
+                    <!-- Содержимое будет загружено через AJAX -->
+                    <div class="text-center py-4" id="deleteLoadingIndicator">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JS Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Главное переключение между Admin и User
+    document.getElementById('adminTab').addEventListener('click', function(e) {
+        e.preventDefault();
+        this.classList.add('active');
+        document.getElementById('userTab').classList.remove('active');
+
+        // Меняем заголовок
+        document.getElementById('mainTitle').textContent = 'Admin panel';
+
+        // Показываем подтабы и таблицу пользователей
+        document.getElementById('adminSubTabs').style.display = 'flex';
+        showUsersTable();
+    });
+
+    document.getElementById('userTab').addEventListener('click', function(e) {
+        e.preventDefault();
+        this.classList.add('active');
+        document.getElementById('adminTab').classList.remove('active');
+
+        // Меняем заголовок на "User information-page"
+        document.getElementById('mainTitle').textContent = 'User information-page';
+
+        // Скрываем подтабы и показываем информацию о пользователе
+        document.getElementById('adminSubTabs').style.display = 'none';
+        hideAllSections();
+        document.getElementById('userInfoSection').classList.add('active');
+    });
+
+    // Переключение между таблицей и формой в режиме Admin
+    document.getElementById('usersTableTab').addEventListener('click', function(e) {
+        e.preventDefault();
+        showUsersTable();
+    });
+
+    document.getElementById('newUserTab').addEventListener('click', function(e) {
+        e.preventDefault();
+        hideAllSections();
+        document.getElementById('newUserSection').classList.add('active');
+        this.classList.add('active');
+        document.getElementById('usersTableTab').classList.remove('active');
+    });
+
+    // Кнопка Cancel в форме создания пользователя
+    document.getElementById('cancelNewUser').addEventListener('click', function(e) {
+        e.preventDefault();
+        showUsersTable();
+    });
+
+    function showUsersTable() {
+        hideAllSections();
+        document.getElementById('usersTableSection').classList.add('active');
+        document.getElementById('usersTableTab').classList.add('active');
+        document.getElementById('newUserTab').classList.remove('active');
+    }
+
+    function hideAllSections() {
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+    }
+
+    // Функции для модальных окон
+    function loadUserData(userId) {
+        fetch('/admin/edit?id=' + userId)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById('editUserModalBody').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error loading user data:', error);
+                alert('Error loading user data. Please try again.');
+            });
+    }
+
+    function loadUserForDelete(userId) {
+        const loadingIndicator = document.getElementById('deleteLoadingIndicator');
+        const modalBody = document.getElementById('deleteUserModalBody');
+
+        loadingIndicator.style.display = 'block';
+
+        fetch('/admin/delete-confirm?id=' + userId)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(html => {
+                modalBody.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                modalBody.innerHTML = `
+                    <div class="alert alert-danger">
+                        Failed to load user data. Please try again.
+                    </div>
+                `;
+            })
+            .finally(() => {
+                loadingIndicator.style.display = 'none';
+            });
+    }
+
+    // Инициализация - показываем Admin по умолчанию
+    document.getElementById('adminTab').click();
+</script>
+</body>
+</html>

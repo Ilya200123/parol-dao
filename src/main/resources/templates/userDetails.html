@@ -13,4 +13,19 @@
 <p>Roles: <span th:text="${user.roles}"></span></p>
 <a href="/admin">Back to list</a>
 </body>
+</html><!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Details</title>
+</head>
+<body>
+<h1>User Details</h1>
+<p>ID: <span th:text="${user.id}"></span></p>
+<p>Name: <span th:text="${user.username}"></span></p>
+<p>lastName: <span th:text="${user.lastName}"></span></p>
+<p>age: <span th:text="${user.age}"></span></p>
+<p>password: <span th:text="${user.password}"></span></p>
+<p>Roles: <span th:text="${user.roles}"></span></p>
+<a href="/admin">Back to list</a>
+</body>
 </html>

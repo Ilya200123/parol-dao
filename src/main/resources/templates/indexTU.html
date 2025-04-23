@@ -1,16 +1,149 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>User Details</title>
+    <title>Admin Panel</title>
+    <!-- CSS Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .user-header {
+            background-color: #343a40;
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logout-btn {
+            color: white;
+            background-color: #495057;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .logout-btn:hover {
+            background-color: #6c757d;
+        }
+        .nav-tabs {
+            margin-bottom: 20px;
+        }
+        .nav-link {
+            color: #495057;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        .nav-link.active {
+            font-weight: bold;
+            color: #0d6efd;
+            background-color: transparent;
+            border-bottom: 2px solid #0d6efd;
+        }
+        .action-buttons {
+            white-space: nowrap;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .form-container {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .user-info-container {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .user-info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .user-info-table th {
+            text-align: left;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .user-info-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        /* Стили для модального окна */
+        .modal-header {
+            border-bottom: 1px solid #dee2e6;
+        }
+        .modal-footer {
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
 </head>
+
+
+
 <body>
-<h1>User Details</h1>
-<p>ID: <span th:text="${user.id}"></span></p>
-<p>Name: <span th:text="${user.username}"></span></p>
-<p>lastName: <span th:text="${user.lastName}"></span></p>
-<p>age: <span th:text="${user.age}"></span></p>
-<p>password: <span th:text="${user.password}"></span></p>
-<p>Roles: <span th:text="${user.roles}"></span></p>
-<a href="/login">Back to list</a>
+ <!-- Шапка с информацией о пользователе и кнопкой выхода -->
+ <div class="user-header">
+     <span th:text="${user.username} + ' with roles: ' + ${user.roles}">admin@mail.ru with roles: ADMIN USER</span>
+     <a th:href="@{/logout}" class="logout-btn">Logout</a>
+ </div>
+
+ <div class="container-fluid">
+     <div class="row">
+         <!-- Левое меню -->
+         <div class="col-md-3 col-lg-2">
+             <ul class="nav flex-column">
+                 <li class="nav-item">
+                     <a class="nav-link active" id="userTab" href="#">User</a>
+                 </li>
+             </ul>
+         </div>
+
+
+
+
+
+         <div class="col-md-9 col-lg-10">
+             <h2 class="mb-4" id="mainTitle">User information-page</h2>
+             <div class="info-card">
+                 <h5 class="mb-3">About user</h5>
+                 <table class="user-info-table">
+                     <thead>
+                     <tr>
+                         <th>ID</th>
+                         <th>First Name</th>
+                         <th>Last Name</th>
+                         <th>Age</th>
+                         <th>Role</th>
+                     </tr>
+                     </thead>
+                     <tbody>
+                     <tr>
+                         <td th:text="${user.id}"></td>
+                         <td th:text="${user.username}"></td>
+                         <td th:text="${user.lastName}"></td>
+                         <td th:text="${user.age}"></td>
+                         <td th:text="${user.getRoles()}"></td>
+                     </tr>
+                     </tbody>
+                 </table>
+             </div>
+         </div>
+     </div>
+ </div>
+
+
+ <!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
