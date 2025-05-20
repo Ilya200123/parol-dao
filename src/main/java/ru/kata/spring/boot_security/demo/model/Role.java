@@ -1,10 +1,12 @@
 package ru.kata.spring.boot_security.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -16,10 +18,13 @@ public class Role implements GrantedAuthority {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
+    @NotBlank(message = "Role name cannot be empty")
+    @Size(min = 4, max = 20, message = "Role name must be 4-20 characters")
     @Column(name = "name", nullable = false, unique = true)
     private String name; // "ROLE_USER", "ROLE_ADMIN"
 
     @ManyToMany(mappedBy = "roles")
+    @JsonIgnore
     private Set<User> users = new HashSet<>();
 
     public Role() {

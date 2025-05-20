@@ -4,6 +4,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.*;
 
 @Entity
@@ -15,15 +18,20 @@ public class User implements UserDetails {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
+    @NotBlank(message = "Username cannot be empty")
+    @Size(min = 2, max = 50, message = "Username must be between 2 and 50 characters")
     @Column(nullable = false, unique = true)
     private String username;
 
+    @NotBlank(message = "Last name cannot be empty")
     @Column(name = "lastname", nullable = false)
     private String lastName;
 
+    @Min(value = 0, message = "Age must be positive")
     @Column(name = "age", nullable = false)
     private Byte age;
 
+    @NotBlank(message = "Password is required")
     @Column(name = "password", nullable = false)
     private String password;
 

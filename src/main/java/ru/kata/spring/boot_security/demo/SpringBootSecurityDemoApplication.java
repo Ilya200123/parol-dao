@@ -2,12 +2,6 @@ package ru.kata.spring.boot_security.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.service.UserService;
-import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
-import ru.kata.spring.boot_security.demo.service.UserServiceTu;
-
-import java.util.List;
 
 @SpringBootApplication
 public class SpringBootSecurityDemoApplication {
