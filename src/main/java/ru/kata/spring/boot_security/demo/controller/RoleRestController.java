@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.repositorey.RoleRepository;
-import ru.kata.spring.boot_security.demo.service.RoleService;
+import ru.kata.spring.boot_security.demo.service.RoleServiceImpl;
 
 import java.util.List;
 
@@ -13,13 +13,16 @@ import java.util.List;
 @RequestMapping("/api/roles")
 public class RoleRestController {
     private final RoleRepository roleRepository;
+    private final RoleServiceImpl roleService;
 
-    public RoleRestController(RoleRepository roleRepository) {
+    public RoleRestController(RoleRepository roleRepository, RoleServiceImpl roleService) {
         this.roleRepository = roleRepository;
+        this.roleService = roleService;
     }
 
     @GetMapping
     public List<Role> getAllRoles() {
-        return roleRepository.findAll();
+        return roleService.getAllRoles();
     }
+
 }
